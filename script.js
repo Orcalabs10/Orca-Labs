@@ -24,8 +24,64 @@
     ['Responsive Website','resp','Layouts that adapt cleanly to phones, tablets and desktops, so every visitor gets a great experience.'],
     ['Portfolio Website','port','A sharp personal or studio portfolio that shows your work and helps you win new clients.']
   ];
-  document.getElementById('svc').innerHTML=items.map(function(s,i){
-    return '<div class="svc-row"><div><p class="num">'+String(i+1).padStart(2,'0')+'</p><h3>'+s[0].replace('&','&amp;')+'</h3><p>'+s[2]+'</p><div class="price">Price: <span>₹ ______</span></div></div><div class="art"><svg viewBox="0 0 320 210" role="img" aria-label="'+s[0].replace('&','and')+' illustration">'+art[s[1]]+'</svg></div></div>';
-  }).join('');
+  function card(s){
+    return '<div class="card reveal"><div class="art"><svg viewBox="0 0 320 210" role="img" aria-label="'+s[0].replace('&','and')+' illustration">'+art[s[1]]+'</svg></div><h3>'+s[0].replace('&','&amp;')+'</h3><p>'+s[2]+'</p><div class="price">Price: <span>₹ ______</span></div></div>';
+  }
+  document.getElementById('svc').innerHTML=
+    '<div class="cards">'+items.slice(0,4).map(card).join('')+'</div>'+
+    '<div class="more" id="more"><div class="cards">'+items.slice(4).map(card).join('')+'</div></div>'+
+    '<div class="see-more"><button class="btn" id="toggle" type="button" aria-expanded="false" aria-controls="more">See more</button></div>';
 
+  /* See more / See less */
+  var more=document.getElementById('more'),btn=document.getElementById('toggle'),open=false;
+  btn.addEventListener('click',function(){
+    open=!open;
+    more.style.maxHeight=more.scrollHeight+'px';
+    if(open){
+      more.addEventListener('transitionend',function f(e){
+        if(e.target!==more||e.propertyName!=='max-height')return;
+        if(open)more.style.maxHeight='none';
+        more.removeEventListener('transitionend',f);
+      });
+    }else{
+      requestAnimationFrame(function(){requestAnimationFrame(function(){more.style.maxHeight='0px';});});
+    }
+    btn.textContent=open?'See less':'See more';
+    btn.setAttribute('aria-expanded',open);
+  });
+
+  /* Count-up for stats */
+  var counters=document.querySelectorAll('[data-count]'),calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function pad(n){return n<10?'0'+n:''+n;}
+  Array.prototype.forEach.call(counters,function(b){if(!calm)b.textContent='00';});
+  function countUp(box){
+    Array.prototype.forEach.call(box.querySelectorAll('[data-count]'),function(b){
+      var end=+b.getAttribute('data-count'),t0=null;
+      if(calm){b.textContent=pad(end);return;}
+      function step(t){
+        if(!t0)t0=t;
+        var p=Math.min((t-t0)/1200,1);
+        b.textContent=pad(Math.round(end*(1-Math.pow(1-p,3))));
+        if(p<1)requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  /* Slide-up on scroll */
+  var els=document.querySelectorAll('.reveal');
+  Array.prototype.forEach.call(els,function(el){
+    var idx=Array.prototype.indexOf.call(el.parentNode.children,el);
+    el.style.setProperty('--d',(idx%4)*0.09+'s');
+  });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){e.target.classList.add('in');if(e.target.classList.contains('stats'))countUp(e.target);io.unobserve(e.target);}
+      });
+    },{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
+    Array.prototype.forEach.call(els,function(el){io.observe(el);});
+  }else{
+    Array.prototype.forEach.call(els,function(el){el.classList.add('in');});
+  }
 })();
