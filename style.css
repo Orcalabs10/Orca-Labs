@@ -12,11 +12,11 @@
   /* card background */
   --white: #ffffff;
 
-  --accent: #f2540f;
+  --accent: #2e62fc;
   /* orange-red */
-  --accent-soft: #ff7a2a;
+  --accent-soft: #8aa9ff;
   /* lighter orange */
-  --accent-deep: #d93a05;
+  --accent-deep: #353e9f;
   /* deeper red-orange */
 
   --btn-bg: var(--white);
@@ -24,7 +24,7 @@
   --btn-ink: var(--ink);
   --btn-hover: var(--accent);
 
-  --foot-bg: #111111;
+  --foot-bg: #283970;
   --foot-ink: #f4f2ec;
   --foot-mute: #9a9a95;
   --foot-line: #3a3a38;
